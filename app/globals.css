@@ -93,3 +93,29 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Animation for background grid */
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 0.1;
+  }
+
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.bggrid>div {
+  animation: pulse 10s infinite;
+  animation-delay: calc(var(--index) * 0.1s);
+}
+
+.bggrid>div:nth-child(3n) {
+  animation-delay: calc(var(--index) * 0.2s + 1s);
+}
+
+.bggrid>div:nth-child(5n) {
+  animation-delay: calc(var(--index) * 0.3s + 2s);
+}

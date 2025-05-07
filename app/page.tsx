@@ -562,8 +562,20 @@ export default function TodoApp() {
   const filteredRootTasks = getFilteredRootTasks()
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-gray-600 via-gray-500 to-gray-600 p-4 dark">
-      <Card className="w-full max-w-2xl shadow-lg">
+    <div className="flex min-h-screen flex-col items-center justify-center inset-0 z-50 p-4 dark">
+      <div
+        className="fixed inset-0 overflow-hidden bg-gradient-to-br from-black via-violet-900 to-black"
+      >
+        <div className="absolute inset-0 opacity-20">
+            <div className="bggrid absolute left-0 top-0 grid size-full grid-cols-12 grid-rows-12 gap-4">
+            {Array.from({ length: 144 }).map((_, i) => (
+              <div key={i} className="rounded-md bg-white" />
+            ))}
+            </div>
+        </div>
+        <div className="absolute inset-0 bg-black/40"/>
+      </div>
+      <Card className="w-full max-w-2xl shadow-lg relative">
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-between">
             <CardTitle className="text-2xl font-bold">Ceos - TODO APP</CardTitle>
