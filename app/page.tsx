@@ -562,7 +562,7 @@ export default function TodoApp() {
   const filteredRootTasks = getFilteredRootTasks()
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-black via-yellow-500 to-black p-4 dark">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-gray-600 via-gray-500 to-gray-600 p-4 dark">
       <Card className="w-full max-w-2xl shadow-lg">
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-between">

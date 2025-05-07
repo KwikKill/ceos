@@ -4,7 +4,7 @@
 
 body {
   font-family: Arial, Helvetica, sans-serif;
-  background: rgba(0, 0, 0, 1);
+  background: rgba(75, 85, 99, 1); /* Equivalent to gray-600 in Tailwind */
 }
 
 @layer utilities {
