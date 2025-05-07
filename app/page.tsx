@@ -643,7 +643,7 @@ export default function TodoApp() {
                 </PopoverContent>
               </Popover>
 
-              <Button onClick={addTask} size="icon" variant="default">
+              <Button onClick={addTask} size="icon" variant="secondary">
                 <PlusCircle className="h-5 w-5" />
                 <span className="sr-only">Add task</span>
               </Button>
