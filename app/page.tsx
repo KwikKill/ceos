@@ -532,8 +532,8 @@ export default function TodoApp() {
                 <CalendarComponent
                   mode="single"
                   selected={task.deadline || undefined}
-                  onSelect={(date) => setTaskDeadline(task.id, date)}
-                  initialFocus
+                  onSelect={(date) => setTaskDeadline(task.id, date || null)}
+                  autoFocus
                 />
               </PopoverContent>
             </Popover>
