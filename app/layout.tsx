@@ -4,7 +4,7 @@ import './globals.css'
 export const metadata: Metadata = {
   title: 'Ceos - Todo App',
   description: 'Todo App made by KwikKill',
-  generator: 'KwikKill',
+  authors: [{ name: 'KwikKill' }],
 }
 
 export default function RootLayout({
@@ -14,6 +14,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+      </head>
       <body className='dark'>{children}</body>
     </html>
   )
