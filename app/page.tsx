@@ -522,7 +522,7 @@ export default function TodoApp() {
               {task.priority > 0 ? task.priority : ""}
             </div>
 
-            <div className="flex flex-col">
+            <div className="flex flex-col flex-1">
               {editingTaskId === task.id ? (
                 <Input
                   type="text"
