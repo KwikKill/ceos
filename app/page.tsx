@@ -71,6 +71,8 @@ export default function TodoApp() {
   const [newSubtask, setNewSubtask] = useState("")
   const [newCategoryInput, setNewCategoryInput] = useState("")
   const [commandOpen, setCommandOpen] = useState(false)
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null)
+  const [editTaskText, setEditTaskText] = useState("")
 
   // Load tasks and categories from localStorage on initial render
   useEffect(() => {
@@ -396,6 +398,20 @@ export default function TodoApp() {
     return categories.find((cat) => cat.id === categoryId) || { id: "default", name: "General", color: "#6366f1" }
   }
 
+  const updateTaskText = (taskId: string, newText: string) => {
+    if (newText.trim() === "") return
+
+    setTasks(
+      updateTasksRecursively(tasks, taskId, (task) => ({
+        ...task,
+        text: newText.trim(),
+      })),
+    )
+
+    setEditingTaskId(null)
+    setEditTaskText("")
+  }
+
   // Render a task and its subtasks recursively
   const renderTask = (task: Task, level = 0) => {
     const deadlineStatus = getDeadlineStatus(task.deadline)
@@ -433,9 +449,33 @@ export default function TodoApp() {
               <span className="sr-only">{task.completed ? "Mark as incomplete" : "Mark as complete"}</span>
             </Button>
             <div className="flex flex-col">
-              <span className={`text-sm ${task.completed ? "text-slate-500 line-through" : "text-slate-200"}`}>
-                {task.text}
-              </span>
+              {editingTaskId === task.id ? (
+                <Input
+                  type="text"
+                  value={editTaskText}
+                  onChange={(e) => setEditTaskText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") updateTaskText(task.id, editTaskText)
+                    if (e.key === "Escape") {
+                      setEditingTaskId(null)
+                      setEditTaskText("")
+                    }
+                  }}
+                  onBlur={() => updateTaskText(task.id, editTaskText)}
+                  className="h-7 text-sm w-full"
+                  autoFocus
+                />
+              ) : (
+                <span
+                  className={`text-sm ${task.completed ? "text-slate-500 line-through" : "text-slate-200"} cursor-pointer hover:text-slate-100`}
+                  onClick={() => {
+                    setEditingTaskId(task.id)
+                    setEditTaskText(task.text)
+                  }}
+                >
+                  {task.text}
+                </span>
+              )}
               {category && (
                 <Badge
                   variant="outline"
@@ -567,13 +607,13 @@ export default function TodoApp() {
         className="fixed inset-0 overflow-hidden bg-gradient-to-br from-black via-violet-900 to-black"
       >
         <div className="absolute inset-0 opacity-20">
-            <div className="bggrid absolute left-0 top-0 grid size-full grid-cols-12 grid-rows-12 gap-4">
+          <div className="bggrid absolute left-0 top-0 grid size-full grid-cols-12 grid-rows-12 gap-4">
             {Array.from({ length: 144 }).map((_, i) => (
               <div key={i} className="rounded-md bg-white" />
             ))}
-            </div>
+          </div>
         </div>
-        <div className="absolute inset-0 bg-black/40"/>
+        <div className="absolute inset-0 bg-black/40" />
       </div>
       <Card className="w-full max-w-2xl shadow-lg relative">
         <CardHeader className="space-y-1">
