@@ -522,6 +522,7 @@ export default function TodoApp() {
               {task.priority > 0 ? task.priority : ""}
             </div>
 
+            {/* Task text and category */}
             <div className="flex flex-col flex-1">
               {editingTaskId === task.id ? (
                 <Input
@@ -778,6 +779,7 @@ export default function TodoApp() {
               />
             </div>
 
+            {/* Category selector and add button */}
             <div className="flex space-x-2">
               <Popover>
                 <PopoverTrigger asChild>
@@ -822,7 +824,7 @@ export default function TodoApp() {
                 </PopoverContent>
               </Popover>
 
-              <Button onClick={addTask} size="icon" variant="secondary">
+              <Button onClick={addTask} size="icon" variant="outline">
                 <PlusCircle className="h-5 w-5" />
                 <span className="sr-only">Add task</span>
               </Button>
