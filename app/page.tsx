@@ -94,6 +94,7 @@ export default function TodoApp() {
   const [editTaskText, setEditTaskText] = useState("")
   const [newTaskPriority, setNewTaskPriority] = useState(0)
   const [editingPriorityTaskId, setEditingPriorityTaskId] = useState<string | null>(null)
+  const [tempPriority, setTempPriority] = useState<number>(0)
 
   // Load tasks and categories from localStorage on initial render
   useEffect(() => {
@@ -321,7 +322,6 @@ export default function TodoApp() {
         priority,
       })),
     )
-    setEditingPriorityTaskId(null)
   }
 
   // Delete a task
@@ -641,7 +641,11 @@ export default function TodoApp() {
               onOpenChange={(open) => {
                 if (open) {
                   setEditingPriorityTaskId(task.id)
+                  setTempPriority(task.priority)
                 } else {
+                  if (editingPriorityTaskId) {
+                    setTaskPriority(task.id, tempPriority)
+                  }
                   setEditingPriorityTaskId(null)
                 }
               }}
@@ -657,17 +661,20 @@ export default function TodoApp() {
                   <div className="flex items-center justify-between">
                     <h4 className="font-medium">Priority</h4>
                     <Badge
-                      variant={task.priority > 0 ? "default" : "outline"}
-                      style={{ backgroundColor: priorityColor, color: task.priority >= 5 ? "white" : "black" }}
+                      variant={tempPriority > 0 ? "default" : "outline"}
+                      style={{
+                        backgroundColor: getPriorityColor(tempPriority),
+                        color: tempPriority >= 5 ? "white" : "black",
+                      }}
                     >
-                      {priorityLabel} ({task.priority})
+                      {getPriorityLabel(tempPriority)} ({tempPriority})
                     </Badge>
                   </div>
                   <Slider
-                    defaultValue={[task.priority]}
+                    value={[tempPriority]}
                     max={10}
                     step={1}
-                    onValueChange={(value) => setTaskPriority(task.id, value[0])}
+                    onValueChange={(value) => setTempPriority(value[0])}
                   />
                   <div className="flex justify-between text-xs text-slate-400">
                     <span>Low</span>
