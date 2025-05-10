@@ -13,6 +13,7 @@ import {
   AlertCircle,
   Tag,
   X,
+  Flag,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -22,6 +23,7 @@ import { Badge } from "@/components/ui/badge"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar as CalendarComponent } from "@/components/ui/calendar"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
+import { Slider } from "@/components/ui/slider"
 import { format, differenceInDays } from "date-fns"
 import { cn } from "@/lib/utils"
 
@@ -32,7 +34,7 @@ interface Category {
   color: string
 }
 
-// Define the Task type with subtasks, deadline and optional category
+// Define the Task type with subtasks, deadline, optional category, and priority
 interface Task {
   id: string
   text: string
@@ -42,6 +44,7 @@ interface Task {
   subtasks: Task[]
   expanded: boolean
   categoryId?: string // Make categoryId optional for subtasks
+  priority: number // Priority from 0 to 10, default 0
 }
 
 // Generate a color from a string (category name)
@@ -59,6 +62,22 @@ function generateColorFromString(str: string): string {
   return `hsl(${hue}, 70%, 60%)`
 }
 
+// Get priority color based on priority value
+function getPriorityColor(priority: number): string {
+  if (priority === 0) return "#6b7280" // Gray for no priority
+  if (priority >= 8) return "#ef4444" // Red for high priority
+  if (priority >= 5) return "#f59e0b" // Amber for medium priority
+  return "#10b981" // Green for low priority
+}
+
+// Get priority label based on priority value
+function getPriorityLabel(priority: number): string {
+  if (priority === 0) return "None"
+  if (priority >= 8) return "High"
+  if (priority >= 5) return "Medium"
+  return "Low"
+}
+
 export default function TodoApp() {
   // State for tasks and categories
   const [tasks, setTasks] = useState<Task[]>([])
@@ -73,6 +92,8 @@ export default function TodoApp() {
   const [commandOpen, setCommandOpen] = useState(false)
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null)
   const [editTaskText, setEditTaskText] = useState("")
+  const [newTaskPriority, setNewTaskPriority] = useState(0)
+  const [editingPriorityTaskId, setEditingPriorityTaskId] = useState<string | null>(null)
 
   // Load tasks and categories from localStorage on initial render
   useEffect(() => {
@@ -98,12 +119,24 @@ export default function TodoApp() {
           }
           return value
         })
-        setTasks(parsedTasks)
+
+        // Add priority field with default value 0 if it doesn't exist
+        const tasksWithPriority = addPriorityToTasks(parsedTasks)
+        setTasks(tasksWithPriority)
       } catch (error) {
         console.error("Error parsing tasks from localStorage:", error)
       }
     }
   }, [])
+
+  // Helper function to recursively add priority field to tasks
+  const addPriorityToTasks = (taskList: any[]): Task[] => {
+    return taskList.map((task) => ({
+      ...task,
+      priority: task.priority !== undefined ? task.priority : 0,
+      subtasks: task.subtasks ? addPriorityToTasks(task.subtasks) : [],
+    }))
+  }
 
   // Save tasks and categories to localStorage whenever they change
   useEffect(() => {
@@ -156,10 +189,12 @@ export default function TodoApp() {
         subtasks: [],
         expanded: false,
         categoryId: categoryId,
+        priority: newTaskPriority,
       }
       setTasks([...tasks, newTaskObj])
       setNewTask("")
       setNewCategoryInput("")
+      setNewTaskPriority(0)
     }
   }
 
@@ -181,6 +216,7 @@ export default function TodoApp() {
         expanded: false,
         // Only add categoryId if one was provided
         ...(categoryId && { categoryId }),
+        priority: 0, // Default priority for subtasks
       }
 
       return {
@@ -275,6 +311,17 @@ export default function TodoApp() {
         deadline: date,
       })),
     )
+  }
+
+  // Set priority for a task
+  const setTaskPriority = (taskId: string, priority: number) => {
+    setTasks(
+      updateTasksRecursively(tasks, taskId, (task) => ({
+        ...task,
+        priority,
+      })),
+    )
+    setEditingPriorityTaskId(null)
   }
 
   // Delete a task
@@ -387,7 +434,8 @@ export default function TodoApp() {
       })
     }
 
-    return filtered
+    // Sort tasks by priority (descending)
+    return [...filtered].sort((a, b) => b.priority - a.priority)
   }
 
   // Count remaining active tasks (including subtasks)
@@ -412,11 +460,23 @@ export default function TodoApp() {
     setEditTaskText("")
   }
 
+  // Sort subtasks by priority
+  const sortTasksByPriority = (taskList: Task[]): Task[] => {
+    return [...taskList]
+      .sort((a, b) => b.priority - a.priority)
+      .map((task) => ({
+        ...task,
+        subtasks: sortTasksByPriority(task.subtasks),
+      }))
+  }
+
   // Render a task and its subtasks recursively
   const renderTask = (task: Task, level = 0) => {
     const deadlineStatus = getDeadlineStatus(task.deadline)
     const deadlineColorClass = getDeadlineColorClass(deadlineStatus)
     const category = task.categoryId ? getCategoryById(task.categoryId) : null
+    const priorityColor = getPriorityColor(task.priority)
+    const priorityLabel = getPriorityLabel(task.priority)
 
     return (
       <li key={task.id} className="space-y-2">
@@ -448,6 +508,20 @@ export default function TodoApp() {
               )}
               <span className="sr-only">{task.completed ? "Mark as incomplete" : "Mark as complete"}</span>
             </Button>
+
+            {/* Priority indicator */}
+            <div
+              className="flex items-center justify-center h-6 w-6 rounded-full text-xs font-medium"
+              style={{
+                backgroundColor: task.priority > 0 ? `${priorityColor}30` : "transparent",
+                color: priorityColor,
+                border: task.priority > 0 ? `1px solid ${priorityColor}` : "none",
+              }}
+              title={`Priority: ${priorityLabel} (${task.priority}/10)`}
+            >
+              {task.priority > 0 ? task.priority : ""}
+            </div>
+
             <div className="flex flex-col">
               {editingTaskId === task.id ? (
                 <Input
@@ -560,6 +634,49 @@ export default function TodoApp() {
               </div>
             )}
 
+            {/* Priority setter */}
+            <Popover
+              open={editingPriorityTaskId === task.id}
+              onOpenChange={(open) => {
+                if (open) {
+                  setEditingPriorityTaskId(task.id)
+                } else {
+                  setEditingPriorityTaskId(null)
+                }
+              }}
+            >
+              <PopoverTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-6 w-6" style={{ color: priorityColor }}>
+                  <Flag className="h-4 w-4" />
+                  <span className="sr-only">Set priority</span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64 p-4" align="end">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-medium">Priority</h4>
+                    <Badge
+                      variant={task.priority > 0 ? "default" : "outline"}
+                      style={{ backgroundColor: priorityColor, color: task.priority >= 5 ? "white" : "black" }}
+                    >
+                      {priorityLabel} ({task.priority})
+                    </Badge>
+                  </div>
+                  <Slider
+                    defaultValue={[task.priority]}
+                    max={10}
+                    step={1}
+                    onValueChange={(value) => setTaskPriority(task.id, value[0])}
+                  />
+                  <div className="flex justify-between text-xs text-slate-400">
+                    <span>Low</span>
+                    <span>Medium</span>
+                    <span>High</span>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+
             {/* Deadline picker */}
             <Popover>
               <PopoverTrigger asChild>
@@ -593,7 +710,9 @@ export default function TodoApp() {
 
         {/* Render subtasks if expanded */}
         {task.expanded && task.subtasks.length > 0 && (
-          <ul className="space-y-2">{task.subtasks.map((subtask) => renderTask(subtask, level + 1))}</ul>
+          <ul className="space-y-2">
+            {sortTasksByPriority(task.subtasks).map((subtask) => renderTask(subtask, level + 1))}
+          </ul>
         )}
       </li>
     )
@@ -603,9 +722,7 @@ export default function TodoApp() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center inset-0 z-50 p-4 dark">
-      <div
-        className="fixed inset-0 overflow-hidden bg-gradient-to-br from-black via-violet-900 to-black"
-      >
+      <div className="fixed inset-0 overflow-hidden bg-gradient-to-br from-black via-violet-900 to-black">
         <div className="absolute inset-0 opacity-20">
           <div className="bggrid absolute left-0 top-0 grid size-full grid-cols-12 grid-rows-12 gap-4">
             {Array.from({ length: 144 }).map((_, i) => (
@@ -638,6 +755,28 @@ export default function TodoApp() {
               }}
               className="flex-1"
             />
+
+            {/* Priority slider for new task */}
+            <div className="space-y-2 px-1">
+              <div className="flex items-center justify-between">
+                <label className="text-sm text-slate-300">Priority:</label>
+                <Badge
+                  variant={newTaskPriority > 0 ? "default" : "outline"}
+                  style={{
+                    backgroundColor: getPriorityColor(newTaskPriority),
+                    color: newTaskPriority >= 5 ? "white" : "black",
+                  }}
+                >
+                  {getPriorityLabel(newTaskPriority)} ({newTaskPriority})
+                </Badge>
+              </div>
+              <Slider
+                value={[newTaskPriority]}
+                max={10}
+                step={1}
+                onValueChange={(value) => setNewTaskPriority(value[0])}
+              />
+            </div>
 
             <div className="flex space-x-2">
               <Popover>
@@ -754,10 +893,26 @@ export default function TodoApp() {
                 <span className="text-slate-300">On track</span>
               </div>
             </div>
+
+            {/* Priority legend */}
+            <div className="flex items-center justify-start space-x-4">
+              <div className="flex items-center">
+                <span className="inline-block w-3 h-3 rounded-full bg-red-500 mr-1"></span>
+                <span className="text-slate-300">High (8-10)</span>
+              </div>
+              <div className="flex items-center">
+                <span className="inline-block w-3 h-3 rounded-full bg-amber-500 mr-1"></span>
+                <span className="text-slate-300">Medium (5-7)</span>
+              </div>
+              <div className="flex items-center">
+                <span className="inline-block w-3 h-3 rounded-full bg-emerald-500 mr-1"></span>
+                <span className="text-slate-300">Low (1-4)</span>
+              </div>
+            </div>
           </div>
         </CardContent>
         <CardFooter className="flex justify-between">
-          <p className="text-xs text-slate-400">Tasks with approaching deadlines are highlighted</p>
+          <p className="text-xs text-slate-400">Tasks are sorted by priority (highest first)</p>
           <Button
             variant="ghost"
             size="sm"
