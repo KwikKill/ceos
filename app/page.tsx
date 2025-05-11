@@ -482,7 +482,7 @@ export default function TodoApp() {
       <li key={task.id} className="space-y-2">
         <div
           className={cn(
-            "flex items-center justify-between rounded-md border border-slate-700 p-3 transition-colors hover:bg-slate-800",
+            "flex md:flex-row flex-col items-center justify-between rounded-md border border-slate-700 p-3 transition-colors hover:bg-slate-800",
             {
               "ml-6": level === 1,
               "ml-12": level === 2,
@@ -625,7 +625,7 @@ export default function TodoApp() {
             )}
           </div>
 
-          <div className="flex items-center space-x-1">
+          <div className="flex items-center space-x-1 w-full justify-end md:w-auto">
             {/* Deadline indicator */}
             {task.deadline && (
               <div className={`flex items-center text-xs ${deadlineColorClass}`}>
