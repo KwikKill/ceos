@@ -523,7 +523,7 @@ export default function TodoApp() {
             </div>
 
             {/* Task text and category */}
-            <div className="flex flex-col flex-grow overflow-auto">
+            <div className="flex flex-col flex-1 overflow-auto">
               {editingTaskId === task.id ? (
                 <Input
                   type="text"
