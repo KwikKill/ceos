@@ -490,7 +490,7 @@ export default function TodoApp() {
             },
           )}
         >
-          <div className="flex items-center space-x-3 flex-grow">
+          <div className="flex items-center space-x-3 flex-grow overflow-hidden">
             {task.subtasks.length > 0 && (
               <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => toggleTaskExpanded(task.id)}>
                 {task.expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
@@ -523,7 +523,7 @@ export default function TodoApp() {
             </div>
 
             {/* Task text and category */}
-            <div className="flex flex-col flex-1">
+            <div className="flex flex-col flex-grow overflow-auto">
               {editingTaskId === task.id ? (
                 <Input
                   type="text"
@@ -542,7 +542,7 @@ export default function TodoApp() {
                 />
               ) : (
                 <span
-                  className={`text-sm ${task.completed ? "text-slate-500 line-through" : "text-slate-200"} cursor-pointer hover:text-slate-100`}
+                  className={`text-sm ${task.completed ? "text-slate-500 line-through" : "text-slate-200"} cursor-pointer hover:text-slate-100 flex-1`}
                   onClick={() => {
                     setEditingTaskId(task.id)
                     setEditTaskText(task.text)
@@ -733,12 +733,19 @@ export default function TodoApp() {
       <div className="fixed inset-0 overflow-hidden bg-gradient-to-br from-black via-violet-900 to-black">
         <div className="absolute inset-0 opacity-20">
           <div className="bggrid absolute left-0 top-0 grid size-full grid-cols-12 grid-rows-12 gap-4">
-            {Array.from({ length: 144 }).map((_, i) => (
-              <div key={i} className="rounded-md bg-white" />
-            ))}
+          {Array.from({ length: 144 }).map((_, i) => {
+            const delay = `${((i % 12) + (Math.floor(i / 12))) * 0.1}s`; // Diagonal wave
+            return (
+              <div
+                key={i}
+                className="rounded-md bg-white shadow-xl"
+                style={{ '--delay': delay } as React.CSSProperties}
+              />
+            );
+          })}
           </div>
         </div>
-        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 bg-black/50 pointer-events-none backdrop-blur-sm" />
       </div>
       <Card className="w-full max-w-2xl shadow-lg relative">
         <CardHeader className="space-y-1">
