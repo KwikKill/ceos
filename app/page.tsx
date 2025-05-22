@@ -719,7 +719,18 @@ export default function TodoApp() {
         {/* Render subtasks if expanded */}
         {task.expanded && task.subtasks.length > 0 && (
           <ul className="space-y-2">
-            {sortTasksByPriority(task.subtasks).map((subtask) => renderTask(subtask, level + 1))}
+            {sortTasksByPriority(task.subtasks).filter((subtask) => {
+              // If active category is "active", show only active subtasks
+              if (activeFilter === "active") {
+                return !subtask.completed
+              }
+              // If active category is "completed", show only completed subtasks
+              if (activeFilter === "completed") {
+                return subtask.completed
+              }
+              // Otherwise, show all subtasks
+              return true
+            }).map((subtask) => renderTask(subtask, level + 1))}
           </ul>
         )}
       </li>
