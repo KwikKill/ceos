@@ -796,7 +796,11 @@ export default function TodoApp() {
                   {getPriorityLabel(newTaskPriority)} ({newTaskPriority})
                 </Badge>
               </div>
+              <label htmlFor="new-task-priority-slider" className="sr-only">
+                Task priority
+              </label>
               <Slider
+                id="new-task-priority-slider"
                 value={[newTaskPriority]}
                 max={10}
                 step={1}
@@ -810,7 +814,13 @@ export default function TodoApp() {
             <div className="flex space-x-2">
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" role="combobox" className="flex-1 justify-between" name="category" aria-haspopup="listbox">
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    className="flex-1 justify-between"
+                    aria-haspopup="listbox"
+                    aria-label="Select category"
+                  >
                     {newCategoryInput || getCategoryById(newTaskCategory).name}
                     <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
