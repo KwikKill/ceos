@@ -756,7 +756,7 @@ export default function TodoApp() {
           })}
           </div>
         </div>
-        <div className="absolute inset-0 bg-black/50 pointer-events-none backdrop-blur-sm" />
+        <div className="absolute inset-0 bg-black/50 pointer-events-none" />
       </div>
       <Card className="w-full max-w-2xl shadow-lg relative">
         <CardHeader className="space-y-1">
@@ -801,6 +801,8 @@ export default function TodoApp() {
                 max={10}
                 step={1}
                 onValueChange={(value) => setNewTaskPriority(value[0])}
+                name="priority"
+                aria-label="Task priority"
               />
             </div>
 
@@ -808,7 +810,7 @@ export default function TodoApp() {
             <div className="flex space-x-2">
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" role="combobox" className="flex-1 justify-between">
+                  <Button variant="outline" role="combobox" className="flex-1 justify-between" name="category" aria-haspopup="listbox">
                     {newCategoryInput || getCategoryById(newTaskCategory).name}
                     <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
