@@ -570,7 +570,7 @@ export default function TodoApp() {
             {/* Add subtask button */}
             {currentTaskId === task.id ? (
               <div className="flex items-center ml-2 flex-grow">
-                <div className="flex flex-col space-y-2 w-full">
+                <div className="flex flex-col space-y-2 w-full p-2">
                   <Input
                     type="text"
                     placeholder="Add subtask..."
